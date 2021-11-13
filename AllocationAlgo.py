@@ -92,3 +92,7 @@ if __name__ == '__main__':
     print(len(building._elevlist[7]._calls))
     print(len(building._elevlist[8]._calls))
     print(len(building._elevlist[9]._calls))
+
+
+
+

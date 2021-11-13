@@ -16,7 +16,19 @@ class MyCall:
         return self.allocatedto
 
     def __str__(self):
-        return f"Elevator Call,{self.time_recieved},{self.src},{self.dest},{self.allocatedto},-1"
+        return f"Elevator Call, {self.time_recieved}, {self.src}, {self.dest}, -1, {self.allocatedto}"
 
     def __repr__(self):
-        return f"Elevator Call,{self.time_recieved},{self.src},{self.dest},{self.allocatedto},-1"
+        return f"Elevator Call, {self.time_recieved}, {self.src}, {self.dest}, -1, {self.allocatedto}"
+
+    def get_dir(self):
+        if self.src > self.dest:
+            return -1
+        return 1
+
+    def __eq__(self, other):
+        if self.time_recieved == other.time_recieved and self.src == other.src and self.dest == other.dest:
+            return True
+        return False
+
+

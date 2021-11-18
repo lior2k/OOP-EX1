@@ -1,33 +1,37 @@
+
+
 class MyCall:
 
-    def __init__(self,time: str, src: str, dest: str):
-        self.time_recieved = float(time)
+    def __init__(self, time: str, src: str, dst: str):
+        self.time_received = float(time)
         self.src = int(src)
-        self.dest = int(dest)
-        self.allocatedto=-1
+        self.dst = int(dst)
+        self.allocated_to = -1
+        self.state = 0
 
-    def get_time_recieved(self):
-        return self.time_recieved
+    def get_time_received(self):
+        return self.time_received
 
     def get_src(self):
         return self.src
 
-    def get_dest(self):
-        return self.allocatedto
+    def get_dst(self):
+        return self.dst
 
     def __str__(self):
-        return f"Elevator Call, {self.time_recieved}, {self.src}, {self.dest}, -1, {self.allocatedto}"
+        return f"Elevator Call,{self.time_received},{self.src},{self.dst},{self.allocated_to},-1"
 
     def __repr__(self):
-        return f"Elevator Call, {self.time_recieved}, {self.src}, {self.dest}, -1, {self.allocatedto}"
+        return f"Elevator Call,{self.time_received},{self.src},{self.dst},{self.allocated_to},-1"
 
     def get_dir(self):
-        if self.src > self.dest:
+        if self.src < self.dst:
+            return 1
+        else:
             return -1
-        return 1
 
     def __eq__(self, other):
-        if self.time_recieved == other.time_recieved and self.src == other.src and self.dest == other.dest:
+        if self.time_received == other.time_received and self.src == other.src and self.dst == other.dst:
             return True
         return False
 

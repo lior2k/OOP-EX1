@@ -4,154 +4,120 @@ from mybuilding import MyBuilding
 from myelevator import MyElevator
 from mycall import MyCall
 from mycalls import MyCalls
+import sys
 
 
-
-def calctime(src: int, dest: int, elevator: MyElevator):
-    elevatortimes = elevator.get_opentime()+elevator.get_closetime()+elevator.get_starttime()+elevator.get_starttime()
-    return abs(src-dest)/elevator.get_speed()+2*elevatortimes
-
-def isinpath(call, nextcall, elevator):
-    if nextcall.time_recieved-call.time_recieved < calctime(call.get_src(), nextcall.get_src(), elevator):
-        return True
-    return False
-
-def Allocate(st1 , st2 , st3 ):
-    with open(st1, 'r') as f:
-        data_dict = json.load(f)
-
+def open_json_file(st: str) -> MyBuilding:
+    with open(st, 'r') as f:
+         data_dict = json.load(f)
+        # data_dict = json.load(f.decode("utf-8"))
     building = MyBuilding(len(data_dict["_elevators"]))
     elev_list = data_dict["_elevators"]
     for x in elev_list:
         elevator = MyElevator(x["_id"], x["_speed"], x["_minFloor"], x["_maxFloor"], x["_closeTime"], x["_openTime"],
                               x["_startTime"], x["_stopTime"])
         building + elevator
+    return building
 
-    print(building)
-    all_calls = [] #list of lists of calls as strings
-    with open(st2, 'r') as f:
+
+def open_csv_file(st: str) -> list:
+    all_calls = []  # list of lists of calls as strings
+    with open(st, 'r') as f:
         filereader = csv.reader(f)
         for row in filereader:
             all_calls.append(row)
+    return all_calls
 
-    print(all_calls)
-    my_calls = MyCalls() #list of calls
+
+def write_to_csv(all_calls: list, my_calls: MyCalls, st3: str):
+    i = 0
     for x in all_calls:
-        temp_call = MyCall(x[1], x[2], x[3])
-        my_calls + temp_call
-
-    print(my_calls)
-
-    for call in my_calls.list_of_calls:  #allocation start
-        numofcall = 10000
-        elev_id = 0
-        if (call.allocatedto == -1):
-            for elevator in building._elevlist:
-                if numofcall > len(elevator.get_calls()):
-                    numofcall = len(elevator.get_calls())
-                    elev_id = elevator._id
-            curr_elev = building._elevlist[elev_id]
-            call.allocatedto = elev_id
-            curr_elev + call
-            temp_call_index = my_calls.get_next_index(call)
-            if temp_call_index != -1 and temp_call_index < len(my_calls.list_of_calls):
-                temp_call = my_calls.list_of_calls[temp_call_index]
-                time = calctime(call.get_src(), call.get_dest(), curr_elev)
-                dir = call.get_dir()
-                while temp_call.time_recieved < call.time_recieved + time and temp_call_index < len(
-                        my_calls.list_of_calls):
-                    if dir == 1:
-                        if temp_call.get_dir() == 1 and temp_call.allocatedto == -1:
-                            if isinpath(call, temp_call, curr_elev):
-                                temp_call.allocatedto == elev_id
-                                curr_elev + temp_call
-                    if dir == -1:
-                        if temp_call.get_dir() == -1 and temp_call.allocatedto == -1:
-                            if isinpath(call, temp_call, curr_elev):
-                                temp_call.allocatedto == elev_id
-                                curr_elev + temp_call
-                    temp_call = my_calls.list_of_calls[temp_call_index]
-                    temp_call_index += 1
-
-    i=0
-    for x in all_calls:
-        x[5] = my_calls.list_of_calls[i].allocatedto
-        i+=1
+        x[5] = my_calls.get_calls_list()[i].allocated_to
+        i += 1
     with open(st3, 'w', newline="") as f:
         for x in all_calls:
             writer = csv.writer(f)
             writer.writerow(x)
 
 
+def calctime(src: int, dst: int, elevator: MyElevator):
+    elevatortimes = elevator.get_opentime()+elevator.get_closetime()+elevator.get_starttime()+elevator.get_stoptime()
+    return (abs(src-dst)/elevator.get_speed())+elevatortimes
 
 
-if __name__ == '__main__':
-    with open("B3.json", 'r') as f:
-        data_dict = json.load(f)
+def isinpath(call, nextcall, elevator):
+    if nextcall.time_received-call.time_received < calctime(call.get_src(), nextcall.get_src(), elevator):
+        return True
+    return False
 
-    building = MyBuilding(len(data_dict["_elevators"]))
-    elev_list = data_dict["_elevators"]
-    for x in elev_list:
-        elevator = MyElevator(x["_id"], x["_speed"], x["_minFloor"], x["_maxFloor"], x["_closeTime"], x["_openTime"],
-                              x["_startTime"], x["_stopTime"])
-        building + elevator
 
-    print(building)
-    all_calls = [] #list of lists of calls as strings
-    with open('Calls_d.csv') as f:
-        filereader = csv.reader(f)
-        for row in filereader:
-            all_calls.append(row)
+def timetocompletecall(elevator, current_pos, src, dst):
+    if current_pos == src:
+        t1 = elevator.get_closetime()
+    else:
+        t1 = abs(current_pos-src)/elevator.get_speed() + elevator.get_starttime() + elevator.get_opentime()\
+             + elevator.get_stoptime() + elevator.get_closetime()
+    t2 = abs(src-dst)/elevator.get_speed() + elevator.get_starttime() + elevator.get_opentime()\
+        + elevator.get_stoptime() + elevator.get_closetime()
+    return t1+t2
 
-    print(all_calls)
-    my_calls = MyCalls() #list of calls
-    for x in all_calls:
-        temp_call = MyCall(x[1], x[2], x[3])
-        my_calls + temp_call
 
-    print(my_calls)
+def get_best_elevator(call, building):
+    t = 10000000000
+    elv_id = -1
+    for elevator in building:
+        if len(elevator.get_calls()) == 0:
+            time_for_call = calctime(call.get_src(), call.get_dst(), elevator)
+        else:
+            time_for_call = calctime(call.get_src(), call.get_dst(), elevator) * len(elevator.get_calls())
+        if t > time_for_call:
+            t = time_for_call
+            elv_id = elevator.get_id()
+    return elv_id
 
-    for call in my_calls.list_of_calls:  #allocation start
-        numofcall = 10000
-        elev_id = 0
-        if (call.allocatedto == -1):
-            for elevator in building._elevlist:
-                if numofcall > len(elevator.get_calls()):
-                    numofcall = len(elevator.get_calls())
-                    elev_id = elevator._id
-            curr_elev = building._elevlist[elev_id]
-            call.allocatedto = elev_id
+
+def allocate_extra_calls(call: MyCall, index: int, my_calls: MyCalls, elv: MyElevator):
+    temp_call = my_calls.list_of_calls[index]
+    time = calctime(call.get_src(), call.get_dst(), elv)
+    direction = call.get_dir()
+    while temp_call.time_received < call.time_received + time and index < len(
+            my_calls.list_of_calls):
+        if direction == 1:
+            if temp_call.get_dir() == 1 and temp_call.allocated_to == -1:
+                if isinpath(call, temp_call, elv):
+                    temp_call.allocated_to = elv.get_id()
+                    elv + temp_call
+        if direction == -1:
+            if temp_call.get_dir() == -1 and temp_call.allocated_to == -1:
+                if isinpath(call, temp_call, elv):
+                    temp_call.allocated_to = elv.get_id()
+                    elv + temp_call
+        temp_call = my_calls.list_of_calls[index]
+        index += 1
+
+
+def allocate(st1, st2, st3):
+    building = open_json_file(st1)
+    all_calls = open_csv_file(st2)
+    my_calls = MyCalls(all_calls)
+    elv_list = building.get_elevators_list()
+    # allocation start
+    for call in my_calls:
+        if call.allocated_to == -1:
+            elv_id = get_best_elevator(call, building)
+            call.allocated_to = elv_id
+            curr_elev = elv_list[elv_id]
             curr_elev + call
             temp_call_index = my_calls.get_next_index(call)
             if temp_call_index != -1 and temp_call_index < len(my_calls.list_of_calls):
-                temp_call = my_calls.list_of_calls[temp_call_index]
-                time = calctime(call.get_src(), call.get_dest(), curr_elev)
-                dir = call.get_dir()
-                while temp_call.time_recieved < call.time_recieved + time and temp_call_index < len(
-                        my_calls.list_of_calls):
-                    if dir == 1:
-                        if temp_call.get_dir() == 1 and temp_call.allocatedto == -1:
-                            if isinpath(call, temp_call, curr_elev):
-                                temp_call.allocatedto == elev_id
-                                curr_elev + temp_call
-                    if dir == -1:
-                        if temp_call.get_dir() == -1 and temp_call.allocatedto == -1:
-                            if isinpath(call, temp_call, curr_elev):
-                                temp_call.allocatedto == elev_id
-                                curr_elev + temp_call
-                    temp_call = my_calls.list_of_calls[temp_call_index]
-                    temp_call_index += 1
+                allocate_extra_calls(call, temp_call_index, my_calls, curr_elev)
+    print("it worked!")
+    write_to_csv(all_calls, my_calls, st3)
 
 
-    print(my_calls)
-    i=0
-    for x in all_calls:
-        x[5] = my_calls.list_of_calls[i].allocatedto
-        i+=1
-    with open("B3_Calls_d.csv", 'w', newline="") as f:
-        for x in all_calls:
-            writer = csv.writer(f)
-            writer.writerow(x)
+if __name__ == '__main__':
+    allocate(sys.argv[0], sys.argv[1], sys.argv[2])
+    # allocate("B5.json", "Calls_b.csv", "output.csv")
 
 
 

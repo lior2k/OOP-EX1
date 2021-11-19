@@ -4,7 +4,9 @@ In this project we were required to design an optimal elevator algorithm which a
 
 ## Literature Survey:
 https://www.geeksforgeeks.org/smart-elevator-pro-geek-cup/
+
 https://www.diva-portal.org/smash/get/diva2:668654/FULLTEXT01.pdf
+
 https://www.npr.org/templates/story/story.php?storyId=6799860
 
 ## Our Algorithm:

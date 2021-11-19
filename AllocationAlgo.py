@@ -76,12 +76,10 @@ def get_best_elevator(call, building):
     return elv_id
 
 
-def allocate_extra_calls(call: MyCall, index: int, my_calls: MyCalls, elv: MyElevator):
-    temp_call = my_calls.list_of_calls[index]
+def allocate_extra_calls(call: MyCall, temp_call: MyCall, my_calls: MyCalls, elv: MyElevator):
     time = calctime(call.get_src(), call.get_dst(), elv)
     direction = call.get_dir()
-    while temp_call.time_received < call.time_received + time and index < len(
-            my_calls.list_of_calls):
+    while temp_call is not None and temp_call.time_received < call.time_received + time:
         if direction == 1:
             if temp_call.get_dir() == 1 and temp_call.allocated_to == -1:
                 if isinpath(call, temp_call, elv):
@@ -92,8 +90,7 @@ def allocate_extra_calls(call: MyCall, index: int, my_calls: MyCalls, elv: MyEle
                 if isinpath(call, temp_call, elv):
                     temp_call.allocated_to = elv.get_id()
                     elv + temp_call
-        temp_call = my_calls.list_of_calls[index]
-        index += 1
+        temp_call = my_calls.get_next_call(temp_call)
 
 
 def allocate(st1, st2, st3):
@@ -108,16 +105,14 @@ def allocate(st1, st2, st3):
             call.allocated_to = elv_id
             curr_elev = elv_list[elv_id]
             curr_elev + call
-            temp_call_index = my_calls.get_next_index(call)
-            if temp_call_index != -1 and temp_call_index < len(my_calls.list_of_calls):
-                allocate_extra_calls(call, temp_call_index, my_calls, curr_elev)
-    print("it worked!")
+            temp_call = my_calls.get_next_call(call)
+            if temp_call is not None:
+                allocate_extra_calls(call, temp_call, my_calls, curr_elev)
     write_to_csv(all_calls, my_calls, st3)
 
 
 if __name__ == '__main__':
-    allocate(sys.argv[0], sys.argv[1], sys.argv[2])
-    # allocate("B5.json", "Calls_b.csv", "output.csv")
-
+    # allocate(sys.argv[0], sys.argv[1], sys.argv[2])
+    allocate("B3.json", "Calls_b.csv", "output.csv")
 
 

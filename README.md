@@ -51,12 +51,20 @@ After extracting the data from the files, we loop over the calls and for each ca
 running our function from terminal/cmd which prints the csv file with the allocated elevators:
 
 ```sh
-python AllocationAlgo.py 206284960,207304353 <json_file_name.json> <csv_file(calls).csv> <output_file_name.csv>
+python AllocationAlgo.py <json_file_name.json> <csv_file(calls).csv> <output_file_name.csv>
+```
+For example:
+
+```sh
+python AllocationAlgo.py Ex1_Buildings/B5.json Ex1_Calls/calls_b.csv output.csv
 ```
 running the tester in terminal/cmd:
 
 ```sh
 java -jar Ex1_checker_V1.2_obf.jar 206284960,207304353 <json_file(building).csv> <output_file_name(allocated calls).csv> <log_file_name.log>
 ```
-
+For example:
+```sh
+java -jar Ex1_checker_V1.2_obf.jar 206284960,207304353 Ex1_Buildings/B5.json output.csv a.log
+```
 

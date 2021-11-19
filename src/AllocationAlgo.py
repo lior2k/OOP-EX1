@@ -111,6 +111,6 @@ def allocate(st1, st2, st3):
 
 
 if __name__ == '__main__':
-    allocate(sys.argv[2], sys.argv[3], sys.argv[4])
+    allocate(sys.argv[1], sys.argv[2], sys.argv[3])
     # allocate("Assignments/Ex1/data/Ex1_Buildings/B5.json", "Ex1_Calls/Calls_d.csv", "output.csv")
 

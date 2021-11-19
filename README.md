@@ -12,6 +12,9 @@ https://www.npr.org/templates/story/story.php?storyId=6799860
 After extracting the data from the files, we loop over the calls and for each call we loop over all the elevators, while looping over the elevators calculate the cost of the call, multiple the cost by the amount of active calls the elevator has at that time and choose the elevator with the lowest cost. In addition, after choosing the elevator for a certain call, we loop over the calls again in order to allocate additional calls that would work well with the original call (calls that are contained within the original call and such).
 
 ## flowchart:
+![image](https://user-images.githubusercontent.com/92747945/142666483-0a5d7156-01cf-470e-aa58-37be3fd63ac2.png)
+
+
 
 ## Our Classes
 

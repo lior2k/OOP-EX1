@@ -97,4 +97,3 @@ class MyElevator:
 
     def calcpos(self, timeframe):
         return self._speed*int(timeframe) + self._starttime + self._opentime + self._stoptime + self._closetime
-

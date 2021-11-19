@@ -26,11 +26,13 @@ class MyCalls:
                 return counter+1
             else:
                 counter += 1
-        return -1
+        return 0
 
     def __iter__(self):
         return iter(self.list_of_calls)
 
     def get_next_call(self, call):
         i = self.get_next_index(call)
+        if i >= len(self.list_of_calls) or i < 1:
+            return None
         return self.list_of_calls[i]
